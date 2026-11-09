@@ -1,0 +1,38 @@
+{
+  "compilerOptions": {
+    // Opsi bahasa, tipe, dan modul untuk kompilasi TypeScript aplikasi.
+    "target": "ES2017",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "react-jsx",
+    "incremental": true,
+    "plugins": [
+      {
+        // Mengaktifkan integrasi tipe khusus Next.js.
+        "name": "next"
+      }
+    ],
+    // Alias import agar modul dapat diakses dari root proyek.
+    "paths": {
+      "@/*": ["./*"]
+    }
+  },
+  // File TypeScript yang diproses dan direktori dependensi yang dikecualikan.
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts",
+    ".next/dev/types/**/*.ts",
+    "**/*.mts"
+  ],
+  "exclude": ["node_modules"]
+}
