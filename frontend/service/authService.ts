@@ -2,10 +2,13 @@ export interface AuthAccount {
   name: string;
   email: string;
   role: string | null;
+  token: string | null;
 }
 
 const AUTH_STORAGE_KEY = "samudrava-account";
 const AUTH_CHANGE_EVENT = "samudrava-auth-change";
+let cachedAuthStorage: string | null | undefined;
+let cachedAuthAccount: AuthAccount | null = null;
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
@@ -39,12 +42,21 @@ export function createAuthAccount(
       getString(roleValue) ??
       getString(roleRecord?.name) ??
       getString(roleRecord?.nama),
+    token: getString(responseRecord.token) ?? getString(nestedData.token),
   };
 }
 
 export function getAuthAccount(): AuthAccount | null {
   const storedAccount = window.localStorage.getItem(AUTH_STORAGE_KEY);
-  if (!storedAccount) return null;
+  if (storedAccount === cachedAuthStorage) {
+    return cachedAuthAccount;
+  }
+
+  cachedAuthStorage = storedAccount;
+  if (!storedAccount) {
+    cachedAuthAccount = null;
+    return cachedAuthAccount;
+  }
 
   try {
     const account: unknown = JSON.parse(storedAccount);
@@ -52,20 +64,27 @@ export function getAuthAccount(): AuthAccount | null {
       isRecord(account) &&
       typeof account.name === "string" &&
       typeof account.email === "string" &&
-      (typeof account.role === "string" || account.role === null)
+      (typeof account.role === "string" || account.role === null) &&
+      (typeof account.token === "string" ||
+        account.token === null ||
+        account.token === undefined)
     ) {
-      return {
+      cachedAuthAccount = {
         name: account.name,
         email: account.email,
         role: account.role,
+        token: typeof account.token === "string" ? account.token : null,
       };
+      return cachedAuthAccount;
     }
   } catch (error) {
     console.error("Data akun tersimpan tidak dapat dibaca.", error);
   }
 
   window.localStorage.removeItem(AUTH_STORAGE_KEY);
-  return null;
+  cachedAuthStorage = null;
+  cachedAuthAccount = null;
+  return cachedAuthAccount;
 }
 
 export function saveAuthAccount(account: AuthAccount): void {

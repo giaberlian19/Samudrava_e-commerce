@@ -41,10 +41,11 @@ export default function LoginPage() {
       }
 
       setPesan("Login berhasil!");
-      saveAuthAccount(createAuthAccount(data, email));
+      const account = createAuthAccount(data, email);
+      saveAuthAccount(account);
       setEmail("");
       setPassword("");
-      router.push("/");
+      router.push(account.role === "admin" ? "/acount/admin" : "/");
     } catch {
       setPesan("Tidak dapat terhubung ke server Laravel.");
     } finally {

@@ -5,28 +5,82 @@ import Electronic from "@/public/image/electronic.jpg";
 import Fashion from "@/public/image/fashion.jpg";
 import Cosmetic from "@/public/image/cosmetic.jpg";
 import HomeGoods from "@/public/image/home.jpg";
+import Sport from "@/public/image/sport.jpg";
+import Food from "@/public/image/food.jpg";
+import Books from "@/public/image/Book.jpg";
+import Baby from "@/public/image/baby.jpg";
 import Image from "next/image";
-import { getProducts } from "@/service/productService";
+import {
+  getProductImageUrl,
+  getProducts,
+} from "@/service/productService";
 import Footer from "@/components/footer";
+import AddToCartButton from "@/components/addToCartButton";
 
-// Data kategori yang ditampilkan pada beranda beserta gambar dan teks alternatifnya.
 const categories = [
-  { name: "Elektronik", image: Electronic, alt: "Perangkat elektronik" },
-  { name: "Fashion", image: Fashion, alt: "Koleksi fashion" },
-  { name: "Kosmetik", image: Cosmetic, alt: "Produk kosmetik" },
-  { name: "Rumah Tangga", image: HomeGoods, alt: "Perlengkapan rumah tangga" },
+  {
+    name: "Elektronik",
+    href: "/kategori/eletronik",
+    image: Electronic,
+    alt: "Perangkat elektronik",
+  },
+  {
+    name: "Fashion",
+    href: "/kategori/fashion",
+    image: Fashion,
+    alt: "Koleksi fashion",
+  },
+  {
+    name: "Kosmetik",
+    href: "/kategori/cosmetic",
+    image: Cosmetic,
+    alt: "Produk kosmetik",
+  },
+  {
+    name: "Rumah Tangga",
+    href: "/kategori/rumahTangga",
+    image: HomeGoods,
+    alt: "Perlengkapan rumah tangga",
+  },
+  {
+    name: "Olahraga",
+    href: "/kategori/sport",
+    image: Sport,
+    alt: "Perlengkapan olahraga",
+  },
+  {
+    name: "Makanan & Minuman",
+    href: "/kategori/food",
+    image: Food,
+    alt: "Makanan dan minuman",
+  },
+  {
+    name: "Buku & Alat Tulis",
+    href: "/kategori/book",
+    image: Books,
+    alt: "Buku dan alat tulis",
+  },
+  {
+    name: "Bayi & Anak",
+    href: "/kategori/baby",
+    image: Baby,
+    alt: "Produk bayi dan anak",
+  },
 ];
 
+const currencyFormatter = new Intl.NumberFormat("id-ID", {
+  style: "currency",
+  currency: "IDR",
+  maximumFractionDigits: 0,
+});
+
 export default async function Page() {
-  // Mengambil daftar produk yang tersedia melalui API.
   const products = await getProducts();
 
   return (
     <main className="min-h-screen bg-white">
-      {/* Navigasi utama situs. */}
       <Navbar />
 
-      {/* Jumbotron: pesan utama dan tautan untuk mulai menjelajahi produk. */}
       <section
         aria-labelledby="hero-title"
         className="relative isolate flex min-h-screen items-center overflow-hidden"
@@ -60,7 +114,7 @@ export default async function Page() {
             </p>
 
             <Link
-              href="/pelanggan"
+              href="#produk"
               className="mt-8 inline-flex items-center justify-center rounded-lg bg-cyan-700 px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-cyan-800"
             >
               Jelajahi produk
@@ -69,7 +123,6 @@ export default async function Page() {
         </div>
       </section>
 
-      {/* Kategori: kartu visual untuk membantu pengunjung menemukan jenis produk. */}
       <section
         id="kategori"
         aria-labelledby="categories-title"
@@ -89,7 +142,7 @@ export default async function Page() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
           {categories.map((category) => (
             <Link
-              href="/pelanggan"
+              href={category.href}
               aria-label={`Jelajahi kategori ${category.name}`}
               key={category.name}
               className="group relative aspect-square overflow-hidden bg-slate-100 shadow-sm hover:shadow-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-700"
@@ -113,7 +166,6 @@ export default async function Page() {
         </div>
       </section>
 
-      {/* Produk yang tersimpan di API, termasuk barang yang ditambahkan admin. */}
       <section
         id="produk"
         aria-labelledby="products-title"
@@ -132,10 +184,10 @@ export default async function Page() {
             </h2>
           </div>
           <Link
-            href="/pelanggan"
+            href="#kategori"
             className="text-sm font-semibold text-cyan-800 hover:text-cyan-600"
           >
-            Jelajahi produk
+            Jelajahi kategori
           </Link>
         </div>
 
@@ -145,28 +197,42 @@ export default async function Page() {
           </p>
         ) : (
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {products.map((product) => (
-              <article
-                key={product.id}
-                className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm transition-shadow hover:shadow-md"
-              >
-                <h3 className="text-lg font-semibold text-slate-900">
-                  {product.name}
-                </h3>
-                <p className="mt-3 text-base font-semibold text-cyan-800">
-                  {new Intl.NumberFormat("id-ID", {
-                    style: "currency",
-                    currency: "IDR",
-                    maximumFractionDigits: 0,
-                  }).format(product.price)}
-                </p>
-              </article>
-            ))}
+            {products.map((product) => {
+              const imageUrl = getProductImageUrl(product.image_path);
+              return (
+                <article
+                  key={product.id}
+                  className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm transition-shadow hover:shadow-md"
+                >
+                  <Link
+                    href={`/barangDipilih/${product.id}`}
+                    className="block rounded-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-700"
+                  >
+                    {imageUrl && (
+                      <Image
+                        src={imageUrl}
+                        alt={`Foto ${product.name}`}
+                        width={640}
+                        height={480}
+                        unoptimized
+                        className="mb-4 aspect-[4/3] w-full rounded-lg object-cover"
+                      />
+                    )}
+                    <h3 className="text-lg font-semibold text-slate-900 hover:text-cyan-800">
+                      {product.name}
+                    </h3>
+                    <p className="mt-3 text-base font-semibold text-cyan-800">
+                      {currencyFormatter.format(product.price)}
+                    </p>
+                  </Link>
+                  <AddToCartButton product={product} />
+                </article>
+              );
+            })}
           </div>
         )}
       </section>
 
-      {/* Bagian pengenalan singkat tentang pengalaman berbelanja di Samudrava. */}
       <section
         aria-labelledby="about-title"
         className="mx-auto grid w-full max-w-7xl gap-10 px-6 py-16 sm:px-8 sm:py-20 lg:grid-cols-2 lg:items-center lg:px-12"
@@ -196,7 +262,7 @@ export default async function Page() {
             tentukan produk yang sesuai dengan kebutuhanmu.
           </p>
           <Link
-            href="/pelanggan"
+            href="#produk"
             className="mt-7 inline-flex items-center justify-center rounded-lg bg-cyan-700 px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-cyan-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-700"
           >
             Lihat semua produk
@@ -204,7 +270,6 @@ export default async function Page() {
         </div>
       </section>
 
-      {/* Footer bersama yang berisi identitas situs dan navigasi singkat. */}
       <Footer />
     </main>
   );

@@ -9,6 +9,7 @@ export default function RegisterPage() {
   const [nama, setNama] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [role, setRole] = useState("pelanggan");
   const [pesan, setPesan] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -31,6 +32,7 @@ export default function RegisterPage() {
             name: nama,
             email: email,
             password: password,
+            role,
           }),
         },
       );
@@ -47,6 +49,7 @@ export default function RegisterPage() {
       setNama("");
       setEmail("");
       setPassword("");
+      setRole("pelanggan");
     } catch {
       setPesan("Tidak dapat terhubung ke server Laravel.");
     } finally {
@@ -113,6 +116,23 @@ export default function RegisterPage() {
               required
               className="w-full rounded-lg border border-gray-300 px-4 py-3 outline-none focus:border-blue-500"
             />
+          </div>
+          <div>
+            <label
+              htmlFor="role"
+              className="mb-2 block text-sm font-medium text-cyan-950"
+            >
+              Role
+            </label>
+            <select
+              id="role"
+              value={role}
+              onChange={(e) => setRole(e.target.value)}
+              className="w-full rounded-lg border border-gray-300 px-4 py-3 text-amber-950 outline-none focus:border-blue-500"
+            >
+              <option value="pelanggan">Pelanggan</option>
+              <option value="penjual">Penjual</option>
+            </select>
           </div>
 
           {/* Umpan balik proses dan tombol untuk mengirim pendaftaran. */}

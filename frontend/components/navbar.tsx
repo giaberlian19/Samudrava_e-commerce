@@ -136,26 +136,36 @@ export default function NavBar() {
                 className="absolute left-0 z-10 mt-2 w-full min-w-48 overflow-hidden rounded-xl border border-slate-200 bg-white p-1 shadow-lg md:w-52"
               >
                 <ul aria-label="Kategori produk">
-                  {["Elektronik", "Fashion", "Kosmetik", "Rumah Tangga"].map(
-                    (category) => (
-                      <li key={category}>
-                        <Link
-                          href="/#kategori"
-                          onClick={closeMenus}
-                          className="block rounded-lg px-3 py-2 text-sm text-slate-700 transition-colors hover:bg-cyan-50 hover:text-cyan-800 focus-visible:outline-2 focus-visible:outline-cyan-700"
-                        >
-                          {category}
-                        </Link>
-                      </li>
-                    ),
-                  )}
+                  {[
+                    { name: "Elektronik", href: "/kategori/eletronik" },
+                    { name: "Fashion", href: "/kategori/fashion" },
+                    { name: "Kosmetik", href: "/kategori/cosmetic" },
+                    {
+                      name: "Rumah Tangga",
+                      href: "/kategori/rumahTangga",
+                    },
+                    { name: "Olahraga", href: "/kategori/sport" },
+                    { name: "Makanan & Minuman", href: "/kategori/food" },
+                    { name: "Buku & Alat Tulis", href: "/kategori/book" },
+                    { name: "Bayi & Anak", href: "/kategori/baby" },
+                  ].map((category) => (
+                    <li key={category.name}>
+                      <Link
+                        href={category.href}
+                        onClick={closeMenus}
+                        className="block rounded-lg px-3 py-2 text-sm text-slate-700 transition-colors hover:bg-cyan-50 hover:text-cyan-800 focus-visible:outline-2 focus-visible:outline-cyan-700"
+                      >
+                        {category.name}
+                      </Link>
+                    </li>
+                  ))}
                 </ul>
               </div>
             )}
           </div>
           {/* Akses keranjang dan autentikasi pengguna. */}
           <Link
-            href="/"
+            href="/keranjang"
             onClick={closeMenus}
             className="rounded-md px-3 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-cyan-50 hover:text-cyan-800"
           >
@@ -190,6 +200,15 @@ export default function NavBar() {
                   <p className="mt-2 text-xs font-medium uppercase tracking-wide text-cyan-800">
                     {account.role ?? "Akun"}
                   </p>
+                  {account.role === "admin" && (
+                    <Link
+                      href="/acount/admin"
+                      onClick={closeMenus}
+                      className="mt-4 block rounded-lg bg-cyan-50 px-3 py-2 text-sm font-semibold text-cyan-900 hover:bg-cyan-100"
+                    >
+                      Dashboard admin
+                    </Link>
+                  )}
                   <button
                     type="button"
                     onClick={() => {
