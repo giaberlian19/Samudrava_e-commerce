@@ -3,39 +3,43 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
-    // Register akun baru sebagai pelanggan
-    public function register(Request $request)
+    // Register akun baru sebagai pelanggan atau penjual
+    public function register(Request $request): JsonResponse
     {
-        $request->validate([
+        $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:6',
+            'role' => 'sometimes|required|in:pelanggan,penjual',
         ]);
 
         $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'role' => 'pelanggan',
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'password' => Hash::make($validated['password']),
+            'role' => $validated['role'] ?? 'pelanggan',
         ]);
 
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
-            'message' => 'Register pelanggan berhasil',
-            'role' => 'pelanggan',
+            'message' => $user->role === 'penjual'
+                ? 'Register penjual berhasil'
+                : 'Register pelanggan berhasil',
+            'role' => $user->role,
             'user' => $user,
             'token' => $token,
         ], 201);
     }
 
-    // Login admin atau pelanggan
-    public function login(Request $request)
+    // Login admin, pelanggan, atau penjual
+    public function login(Request $request): JsonResponse
     {
         $request->validate([
             'email' => 'required|email',
@@ -44,7 +48,7 @@ class AuthController extends Controller
 
         $user = User::where('email', $request->email)->first();
 
-        if (!$user || !Hash::check($request->password, $user->password)) {
+        if (! $user || ! Hash::check($request->password, $user->password)) {
             return response()->json([
                 'message' => 'Email atau password salah',
             ], 401);
@@ -61,16 +65,25 @@ class AuthController extends Controller
             ], 200);
         }
 
+        if ($user->role === 'penjual') {
+            return response()->json([
+                'message' => 'Login Penjual berhasil',
+                'role' => 'penjual',
+                'user' => $user,
+                'token' => $token,
+            ], 200);
+        }
+
         return response()->json([
             'message' => 'Login Pelanggan berhasil',
-            'role' => 'pelanggan',
+            'role' => $user->role,
             'user' => $user,
             'token' => $token,
         ], 200);
     }
 
     // Logout
-    public function logout(Request $request)
+    public function logout(Request $request): JsonResponse
     {
         $request->user()->currentAccessToken()->delete();
 

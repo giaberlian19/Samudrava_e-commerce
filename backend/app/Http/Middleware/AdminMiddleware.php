@@ -15,11 +15,12 @@ class AdminMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if ($request->user() && $request->user()->role !== 'admin') {
+        if (! $request->user() || $request->user()->role !== 'admin') {
             return response()->json([
-                'message' => 'Akses ditolak. Hanya admin yang dapat mengakses resource ini.'
+                'message' => 'Akses ditolak. Hanya admin yang dapat mengakses resource ini.',
             ], 403);
         }
+
         return $next($request);
     }
 }

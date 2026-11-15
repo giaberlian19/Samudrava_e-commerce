@@ -1,14 +1,14 @@
 
 <?php
 
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\ProductController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\ProductController;
-use App\Http\Controllers\CategoryController;
-use App\Http\Controllers\AuthController;
 
 // Route CRUD Produk
-Route::apiResource('products', ProductController::class);
+Route::apiResource('products', ProductController::class)->only(['index', 'show']);
 Route::get('/categories', [CategoryController::class, 'index']);
 Route::get('/categories/{category}', [CategoryController::class, 'show']);
 
@@ -25,21 +25,18 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', function (Request $request) {
         return response()->json([
             'message' => 'Data user berhasil diambil',
-            'user' => $request->user()
+            'user' => $request->user(),
         ]);
     });
 
     // Logout
     Route::post('/logout', [AuthController::class, 'logout']);
 
-
     // Crud khusus admin //
 
-    Route::middleware('admin')->group(function(){
-        Route::post('/products', [ProductController::class, 'store']);
-        Route::put('/products/{product}', [ProductController::class, 'update']);
-        Route::patch('product/{product}', [ProductController::class, 'update']);
-        Route::delete('products/{product}', [ProductController::class, 'destroy']);
+    Route::middleware('admin')->group(function () {
+        Route::apiResource('products', ProductController::class)
+            ->only(['store', 'update', 'destroy']);
         Route::post('/categories', [CategoryController::class, 'store']);
         Route::put('/categories/{category}', [CategoryController::class, 'update']);
         Route::patch('/categories/{category}', [CategoryController::class, 'update']);
